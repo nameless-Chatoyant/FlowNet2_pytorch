@@ -81,13 +81,13 @@ class FlowNet2(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 if m.bias is not None:
-                    init.uniform_(m.bias)
-                init.xavier_uniform_(m.weight)
+                    init.uniform__(m.bias)
+                init.xavier_uniform__(m.weight)
 
             if isinstance(m, nn.ConvTranspose2d):
                 if m.bias is not None:
-                    init.uniform_(m.bias)
-                init.xavier_uniform_(m.weight)
+                    init.uniform__(m.bias)
+                init.xavier_uniform__(m.weight)
                 # init_deconv_bilinear(m.weight)
 
     def init_deconv_bilinear(self, weight):
@@ -373,13 +373,13 @@ class FlowNet2CS(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 if m.bias is not None:
-                    init.uniform_(m.bias)
-                init.xavier_uniform_(m.weight)
+                    init.uniform__(m.bias)
+                init.xavier_uniform__(m.weight)
 
             if isinstance(m, nn.ConvTranspose2d):
                 if m.bias is not None:
-                    init.uniform_(m.bias)
-                init.xavier_uniform_(m.weight)
+                    init.uniform__(m.bias)
+                init.xavier_uniform__(m.weight)
                 # init_deconv_bilinear(m.weight)
 
     def forward(self, inputs):
@@ -450,13 +450,13 @@ class FlowNet2CSS(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 if m.bias is not None:
-                    init.uniform_(m.bias)
-                init.xavier_uniform_(m.weight)
+                    init.uniform__(m.bias)
+                init.xavier_uniform__(m.weight)
 
             if isinstance(m, nn.ConvTranspose2d):
                 if m.bias is not None:
-                    init.uniform_(m.bias)
-                init.xavier_uniform_(m.weight)
+                    init.uniform__(m.bias)
+                init.xavier_uniform__(m.weight)
                 # init_deconv_bilinear(m.weight)
 
     def forward(self, inputs):
