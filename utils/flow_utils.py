@@ -12,7 +12,7 @@ def readFlow(fn):
     with open(fn, 'rb') as f:
         magic = np.fromfile(f, np.float32, count=1)
         if 202021.25 != magic:
-            print 'Magic number incorrect. Invalid .flo file'
+            print('Magic number incorrect. Invalid .flo file')
             return None
         else:
             w = np.fromfile(f, np.int32, count=1)
