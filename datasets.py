@@ -6,7 +6,7 @@ from os.path import *
 import numpy as np
 
 from glob import glob
-from .utils import frame_utils
+from utils import frame_utils
 
 from scipy.misc import imread, imresize
 
