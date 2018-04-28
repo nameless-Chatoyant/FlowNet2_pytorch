@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--number_workers', '-nw', '--num_workers', type=int, default=4)
     parser.add_argument('--number_gpus', '-ng', type=int, default=1, help='number of GPUs to use')
-    parser.add_argument('--no_cuda', action='store_true')
+    parser.add_argument('--device',type = str, default='cuda')
 
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--name', default='run', type=str, help='a name to append to the save directory')
@@ -104,7 +104,6 @@ if __name__ == '__main__':
         args.validation_dataset_class = tools.module_to_dict(datasets)[args.validation_dataset]
         args.inference_dataset_class = tools.module_to_dict(datasets)[args.inference_dataset]
 
-        args.cuda = not args.no_cuda and torch.cuda.is_available()
         args.device = torch.device(args.device)
         args.current_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).rstrip()
         args.log_file = join(args.save, 'args.txt')
