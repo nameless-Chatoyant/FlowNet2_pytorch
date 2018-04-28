@@ -1,4 +1,5 @@
-# flownet2-pytorch 
+# FlowNet2_pytorch 
+This fork is modified for PyTorch 0.4.0.
 
 Pytorch implementation of [FlowNet 2.0: Evolution of Optical Flow Estimation with Deep Networks](https://arxiv.org/abs/1612.01925). 
 
