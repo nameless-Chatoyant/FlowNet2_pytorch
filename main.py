@@ -176,7 +176,7 @@ if __name__ == '__main__':
         block.log('Number of parameters: {}'.format(sum([p.data.nelement() if p.requires_grad else 0 for p in model_and_loss.parameters()])))
 
         # assing to cuda or wrap with dataparallel, model and loss 
-        if args.cuda and (args.number_gpus > 0) and args.fp16:
+        if args.device == torch.device('cuda') and (args.number_gpus > 0) and args.fp16:
             block.log('Parallelizing')
             model_and_loss = nn.parallel.DataParallel(model_and_loss, device_ids=list(range(args.number_gpus)))
 
@@ -185,9 +185,9 @@ if __name__ == '__main__':
             torch.cuda.manual_seed(args.seed) 
             param_copy = [param.clone().type(torch.cuda.FloatTensor).detach() for param in model_and_loss.parameters()]
 
-        elif args.cuda and args.number_gpus > 0:
+        elif args.device == torch.device('cuda') and args.number_gpus > 0:
             block.log('Initializing CUDA')
-            model_and_loss = model_and_loss.cuda()
+            model_and_loss = model_and_loss.to(args.device)
             block.log('Parallelizing')
             model_and_loss = nn.parallel.DataParallel(model_and_loss, device_ids=list(range(args.number_gpus)))
             torch.cuda.manual_seed(args.seed) 
@@ -254,8 +254,8 @@ if __name__ == '__main__':
         for batch_idx, (data, target) in enumerate(progress):
 
             data, target = [Variable(d, volatile = is_validate) for d in data], [Variable(t, volatile = is_validate) for t in target]
-            if args.cuda and args.number_gpus == 1:
-                data, target = [d.cuda(async=True) for d in data], [t.cuda(async=True) for t in target]
+            if args.device == torch.device('cuda') and args.number_gpus == 1:
+                data, target = [d.to(args.device) for d in data], [t.to(args.device) for t in target]
 
             optimizer.zero_grad() if not is_validate else None
             losses = model(data[0], target[0])
@@ -334,53 +334,50 @@ if __name__ == '__main__':
     # Reusable function for inference
     def inference(args, epoch, data_loader, model, offset=0):
 
-        model.eval()
-
-        if args.save_flow or args.render_validation:
-            flow_folder = "{}/{}.epoch-{}-flow-field".format(args.inference_dir,args.name.replace('/', '.'),epoch)
-            if not os.path.exists(flow_folder):
-                os.makedirs(flow_folder)
-
-        
-        args.inference_n_batches = np.inf if args.inference_n_batches < 0 else args.inference_n_batches
-
-        progress = tqdm(data_loader, ncols=100, total=np.minimum(len(data_loader), args.inference_n_batches), desc='Inferencing ', 
-            leave=True, position=offset)
-
-        statistics = []
-        total_loss = 0
-        for batch_idx, (data, target) in enumerate(progress):
-            if args.cuda:
-                data, target = [d.cuda(async=True) for d in data], [t.cuda(async=True) for t in target]
-            data, target = [Variable(d, volatile = True) for d in data], [Variable(t, volatile = True) for t in target]
-
-            # when ground-truth flows are not available for inference_dataset, 
-            # the targets are set to all zeros. thus, losses are actually L1 or L2 norms of compute optical flows, 
-            # depending on the type of loss norm passed in
-            losses, output = model(data[0], target[0], inference=True)
-
-            losses = [torch.mean(loss_value) for loss_value in losses] 
-            loss_val = losses[0] # Collect first loss for weight update
-            total_loss += loss_val.item()
-            loss_values = [v.item() for v in losses]
-
-            # gather loss_labels, direct return leads to recursion limit error as it looks for variables to gather'
-            loss_labels = list(model.module.loss.loss_labels)
-
-            statistics.append(loss_values)
-            # import IPython; IPython.embed()
+        with torch.no_grad():
             if args.save_flow or args.render_validation:
-                for i in range(args.inference_batch_size):
-                    _pflow = output[i].data.cpu().numpy().transpose(1, 2, 0)
-                    flow_utils.writeFlow( join(flow_folder, '%06d.flo'%(batch_idx * args.inference_batch_size + i)),  _pflow)
+                flow_folder = "{}/{}.epoch-{}-flow-field".format(args.inference_dir,args.name.replace('/', '.'),epoch)
+                if not os.path.exists(flow_folder):
+                    os.makedirs(flow_folder)
 
-            progress.set_description('Inference Averages for Epoch {}: '.format(epoch) + tools.format_dictionary_of_losses(loss_labels, np.array(statistics).mean(axis=0)))
-            progress.update(1)
+            
+            args.inference_n_batches = np.inf if args.inference_n_batches < 0 else args.inference_n_batches
 
-            if batch_idx == (args.inference_n_batches - 1):
-                break
+            progress = tqdm(data_loader, ncols=100, total=np.minimum(len(data_loader), args.inference_n_batches), desc='Inferencing ', 
+                leave=True, position=offset)
 
-        progress.close()
+            statistics = []
+            total_loss = 0
+            for batch_idx, (data, target) in enumerate(progress):
+                data, target = [d.to(args.device) for d in data], [t.to(args.device) for t in target]
+
+                # when ground-truth flows are not available for inference_dataset, 
+                # the targets are set to all zeros. thus, losses are actually L1 or L2 norms of compute optical flows, 
+                # depending on the type of loss norm passed in
+                losses, output = model(data[0], target[0], inference=True)
+
+                losses = [torch.mean(loss_value) for loss_value in losses] 
+                loss_val = losses[0] # Collect first loss for weight update
+                total_loss += loss_val.item()
+                loss_values = [v.item() for v in losses]
+
+                # gather loss_labels, direct return leads to recursion limit error as it looks for variables to gather'
+                loss_labels = list(model.module.loss.loss_labels)
+
+                statistics.append(loss_values)
+                # import IPython; IPython.embed()
+                if args.save_flow or args.render_validation:
+                    for i in range(args.inference_batch_size):
+                        _pflow = output[i].data.cpu().numpy().transpose(1, 2, 0)
+                        flow_utils.writeFlow( join(flow_folder, '%06d.flo'%(batch_idx * args.inference_batch_size + i)),  _pflow)
+
+                progress.set_description('Inference Averages for Epoch {}: '.format(epoch) + tools.format_dictionary_of_losses(loss_labels, np.array(statistics).mean(axis=0)))
+                progress.update(1)
+
+                if batch_idx == (args.inference_n_batches - 1):
+                    break
+
+            progress.close()
 
         return
 
