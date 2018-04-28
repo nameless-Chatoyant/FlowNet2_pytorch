@@ -89,7 +89,7 @@ class MpiSintel(data.Dataset):
             cropper = StaticRandomCrop(image_size, self.crop_size)
         else:
             cropper = StaticCenterCrop(image_size, self.render_size)
-        images = map(cropper, images)
+        images = list(map(cropper, images))
         flow = cropper(flow)
 
         images = np.array(images).transpose(3,0,1,2)
@@ -157,7 +157,7 @@ class FlyingChairs(data.Dataset):
         cropper = StaticRandomCrop(image_size, self.crop_size)
     else:
         cropper = StaticCenterCrop(image_size, self.render_size)
-    images = map(cropper, images)
+    images = list(map(cropper, images))
     flow = cropper(flow)
 
 
@@ -224,7 +224,7 @@ class FlyingThings(data.Dataset):
         cropper = StaticRandomCrop(image_size, self.crop_size)
     else:
         cropper = StaticCenterCrop(image_size, self.render_size)
-    images = map(cropper, images)
+    images = list(map(cropper, images))
     flow = cropper(flow)
 
 
@@ -294,7 +294,7 @@ class ChairsSDHom(data.Dataset):
         cropper = StaticRandomCrop(image_size, self.crop_size)
     else:
         cropper = StaticCenterCrop(image_size, self.render_size)
-    images = map(cropper, images)
+    images = list(map(cropper, images))
     flow = cropper(flow)
 
 
@@ -354,7 +354,7 @@ class ImagesFromFolder(data.Dataset):
         cropper = StaticRandomCrop(image_size, self.crop_size)
     else:
         cropper = StaticCenterCrop(image_size, self.render_size)
-    images = map(cropper, images)
+    images = list(map(cropper, images))
     
     images = np.array(images).transpose(3,0,1,2)
     images = torch.from_numpy(images.astype(np.float32))
