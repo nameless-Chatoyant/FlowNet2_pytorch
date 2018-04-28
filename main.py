@@ -255,12 +255,10 @@ if __name__ == '__main__':
         for batch_idx, (data, target) in enumerate(progress):
             if is_validate:
                 with torch.no_grad():
-                    data = [d.to(args.device) for d in data], [t.to(args.device) for t in target]
+                    data, target = [d.to(args.device) for d in data], [t.to(args.device) for t in target]
             else:
-                data = [d.to(args.device) for d in data], [t.to(args.device) for t in target]
-
-            if args.device == torch.device('cuda') and args.number_gpus == 1:
                 data, target = [d.to(args.device) for d in data], [t.to(args.device) for t in target]
+
 
             optimizer.zero_grad() if not is_validate else None
             losses = model(data[0], target[0])
