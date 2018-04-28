@@ -10,13 +10,13 @@ def readFlow(fn):
     # WARNING: this will work on little-endian architectures (eg Intel x86) only!
     # print 'fn = %s'%(fn)
     with open(fn, 'rb') as f:
-        magic = np.fromfile(f, np.float32, count=1)
+        magic = np.fromfile(f, np.float32, count=1)[0]
         if 202021.25 != magic:
             print('Magic number incorrect. Invalid .flo file')
             return None
         else:
-            w = np.fromfile(f, np.int32, count=1)
-            h = np.fromfile(f, np.int32, count=1)
+            w = np.fromfile(f, np.int32, count=1)[0]
+            h = np.fromfile(f, np.int32, count=1)[0]
             # print 'Reading %d x %d flo file\n' % (w, h)
             data = np.fromfile(f, np.float32, count=2*w*h)
             # Reshape data into 3D array (columns, rows, bands)
