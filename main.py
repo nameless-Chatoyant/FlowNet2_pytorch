@@ -254,7 +254,8 @@ if __name__ == '__main__':
         
         for batch_idx, (data, target) in enumerate(progress):
             if is_validate:
-                data = [torch.no_grad(d.to(args.device)) for d in data], [torch.no_grad(t.to(args.device)) for t in target]
+                with torch.no_grad():
+                    data = [d.to(args.device) for d in data], [t.to(args.device) for t in target]
             else:
                 data = [d.to(args.device) for d in data], [t.to(args.device) for t in target]
 
