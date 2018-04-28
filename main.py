@@ -251,9 +251,13 @@ if __name__ == '__main__':
             progress = tqdm(tools.IteratorTimer(data_loader), ncols=120, total=np.minimum(len(data_loader), args.train_n_batches), smoothing=.9, miniters=1, leave=True, position=offset, desc=title)
 
         last_log_time = progress._time()
+        
         for batch_idx, (data, target) in enumerate(progress):
+            if is_validate:
+                data = [torch.no_grad(d.to(args.device)) for d in data], [torch.no_grad(t.to(args.device)) for t in target]
+            else:
+                data = [d.to(args.device) for d in data], [t.to(args.device) for t in target]
 
-            data, target = [Variable(d, volatile = is_validate) for d in data], [Variable(t, volatile = is_validate) for t in target]
             if args.device == torch.device('cuda') and args.number_gpus == 1:
                 data, target = [d.to(args.device) for d in data], [t.to(args.device) for t in target]
 
