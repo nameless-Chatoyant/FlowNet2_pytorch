@@ -127,7 +127,7 @@ if __name__ == '__main__':
     with tools.TimerBlock("Initializing Datasets") as block:
         args.effective_batch_size = args.batch_size
         args.batch_size = args.effective_batch_size // args.number_gpus
-        gpuargs = {'num_workers': args.number_workers, 'pin_memory': True} if args.cuda else {}
+        gpuargs = {'num_workers': args.number_workers, 'pin_memory': True} if args.device == torch.device('cuda') else {}
 
         if exists(args.training_dataset_root):
             train_dataset = args.training_dataset_class(args, True, **tools.kwargs_from_args(args, 'training_dataset'))
