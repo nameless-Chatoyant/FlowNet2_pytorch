@@ -591,8 +591,8 @@ class PWC_P(nn.Module):
         x = (inputs - rgb_mean) / self.rgb_max
         x1 = x[:,:,0,:,:]
         x2 = x[:,:,1,:,:]
-        x1_pyramid = self.feature_pyramid_extractor(x1)
-        x2_pyramid = self.feature_pyramid_extractor(x2)
+        x1_pyramid = self.feature_pyramid_extractor(x1)[::-1]
+        x2_pyramid = self.feature_pyramid_extractor(x2)[::-1]
 
         flow_out_pyramid = []
         for l, (x1_, x2_) in enumerate(zip(x1_pyramid, x2_pyramid)):
