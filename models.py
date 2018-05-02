@@ -504,27 +504,27 @@ class FeaturePyramidExtractor(nn.Module):
         super(FeaturePyramidExtractor, self).__init__()
         self.conv1 = nn.Sequential(
             conv(batchNorm, 3, 16, stride = 2),
-            conv(batchNorm, 3, 16)
+            conv(batchNorm, 16, 16)
         )
         self.conv2 = nn.Sequential(
             conv(batchNorm, 16, 32, stride = 2),
-            conv(batchNorm, 16, 32)
+            conv(batchNorm, 32, 32)
         )
         self.conv3 = nn.Sequential(
             conv(batchNorm, 32, 64, stride = 2),
-            conv(batchNorm, 32, 64)
+            conv(batchNorm, 64, 64)
         )
         self.conv4 = nn.Sequential(
             conv(batchNorm, 64, 96, stride = 2),
-            conv(batchNorm, 64, 96)
+            conv(batchNorm, 96, 96)
         )
         self.conv5 = nn.Sequential(
             conv(batchNorm, 96, 128, stride = 2),
-            conv(batchNorm, 96, 128)
+            conv(batchNorm, 128, 128)
         )
         self.conv6 = nn.Sequential(
             conv(batchNorm, 128, 192, stride = 2),
-            conv(batchNorm, 128, 192)
+            conv(batchNorm, 192, 192)
         )
 
 
