@@ -239,6 +239,7 @@ class FlowNet2C(FlowNetC.FlowNetC):
         concat2 = torch.cat((out_conv2a,out_deconv2,flow3_up),1)
 
         flow2 = self.predict_flow2(concat2)
+        print('training:', self.training)
 
         if self.training:
             return flow2,flow3,flow4,flow5,flow6
