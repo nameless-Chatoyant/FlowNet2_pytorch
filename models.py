@@ -498,11 +498,55 @@ class FlowNet2CSS(nn.Module):
         return flownets2_flow
 
 
+class FeaturePyramidExtractor(nn.Module):
+
+    def __init__(self, args, batchNorm=False):
+        super(FeaturePyramidExtractor, self).__init__()
+        self.conv1 = nn.Sequential(
+            conv(batchNorm, 3, 16, stride = 2),
+            conv(batchNorm, 3, 16)
+        )
+        self.conv2 = nn.Sequential(
+            conv(batchNorm, 16, 32, stride = 2),
+            conv(batchNorm, 16, 32)
+        )
+        self.conv3 = nn.Sequential(
+            conv(batchNorm, 32, 64, stride = 2),
+            conv(batchNorm, 32, 64)
+        )
+        self.conv4 = nn.Sequential(
+            conv(batchNorm, 64, 96, stride = 2),
+            conv(batchNorm, 64, 96)
+        )
+        self.conv5 = nn.Sequential(
+            conv(batchNorm, 96, 128, stride = 2),
+            conv(batchNorm, 96, 128)
+        )
+        self.conv6 = nn.Sequential(
+            conv(batchNorm, 128, 192, stride = 2),
+            conv(batchNorm, 128, 192)
+        )
+
+
+    def forward(self, x):
+        output1 = self.conv1(x)
+        output2 = self.conv2(x)
+        output3 = self.conv3(x)
+        output4 = self.conv4(x)
+        output5 = self.conv5(x)
+        output6 = self.conv6(x)
+
+        return output1, output2, output3, output4, output5, output6
+
+
+
 
 class PWC_P(nn.Module):
 
     def __init__(self, args, batchNorm=False, div_flow = 20.):
         super(PWC_P, self).__init__()
+        self.feature_pyramid_extractor = FeaturePyramidExtractor(args, batchNorm=False)
+
     
     def forward(self, inputs):
         rgb_mean = inputs.contiguous().view(inputs.size()[:2]+(-1,)).mean(dim=-1).view(inputs.size()[:2] + (1,1,1,))
@@ -511,4 +555,6 @@ class PWC_P(nn.Module):
         x1 = x[:,:,0,:,:]
         x2 = x[:,:,1,:,:]
 
-        print(x1.size(), x2.size())
+        x1_pyramid = self.feature_pyramid_extractor(x1)
+        x2_pyramid = self.feature_pyramid_extractor(x2)
+        print(x1.size(), x2.size(), x1_pyramid.size(), x2_pyramid.size())
