@@ -609,8 +609,10 @@ class PWC_P(nn.Module):
             flow = self.flow_estimators[l](torch.cat([x1_, out_corr, flow], dim = 1))
             flow_out_pyramid.append(flow)
         
-
-        return tuple(flow_out_pyramid[::-1][1:])
+        if self.training:
+            return tuple(flow_out_pyramid[::-1][1:])
+        else:
+            return F.upsample(flow, scale_factor = 2, mode = 'bilinear')
 
 
             
