@@ -610,7 +610,7 @@ class PWC_P(nn.Module):
             flow_out_pyramid.append(flow)
         
 
-        return tuple(flow_out_pyramid[::-1])
+        return tuple(flow_out_pyramid[::-1][1:])
 
 
             
