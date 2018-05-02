@@ -157,6 +157,7 @@ if __name__ == '__main__':
                 super(ModelAndLoss, self).__init__()
                 kwargs = tools.kwargs_from_args(args, 'model')
                 print(kwargs)
+                print(args)
                 self.model = args.model_class(args, **kwargs)
                 kwargs = tools.kwargs_from_args(args, 'loss')
                 self.loss = args.loss_class(args, **kwargs)
