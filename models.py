@@ -562,7 +562,7 @@ class FlowEstimator(nn.Module):
 
 class PWC_P(nn.Module):
 
-    def __init__(self, args, batchNorm=False, div_flow = 20.):
+    def __init__(self, args, batchNorm=False, div_flow = 20):
         super(PWC_P, self).__init__()
         self.batchNorm = batchNorm
         self.div_flow = div_flow
@@ -607,9 +607,10 @@ class PWC_P(nn.Module):
             out_corr = self.corr_activation(out_corr)
 
             flow = self.flow_estimators[l](torch.cat([x1_, out_corr, flow], dim = 1))
+            flow_out_pyramid.append(flow)
         
 
-        return F.upsample(flow, scale_factor = 2, mode = 'bilinear')
+        return tuple(flow_out_pyramid[::-1])
 
 
             
