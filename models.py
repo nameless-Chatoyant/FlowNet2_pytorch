@@ -609,7 +609,7 @@ class PWC_P(nn.Module):
             flow = self.flow_estimators[l](torch.cat([x1_, out_corr, flow], dim = 1))
         
 
-        return flow
+        return F.upsample(flow, scale_factor = 2, mode = 'bilinear')
 
 
             
