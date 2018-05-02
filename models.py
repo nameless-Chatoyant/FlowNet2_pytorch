@@ -577,7 +577,7 @@ class PWC_P(nn.Module):
         self.flow_estimator5 = FlowEstimator(args, batchNorm, ch_in = 128 + 81 + 2)
         self.flow_estimator6 = FlowEstimator(args, batchNorm, ch_in = 192 + 81 + 2)
         self.flow_estimators = [self.flow_estimator1, self.flow_estimator2, self.flow_estimator3, self.flow_estimator4, self.flow_estimator5, self.flow_estimator6]
-        self.flow_estimators.reverse()
+        # self.flow_estimators.reverse()
 
         self.corr = Correlation(pad_size = 9, kernel_size=1, max_displacement = 9, stride1=1, stride2=2, corr_multiply=1)
         self.corr_activation = nn.LeakyReLU(0.1,inplace=True)
