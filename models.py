@@ -227,12 +227,10 @@ class FlowNet2C(FlowNetC.FlowNetC):
         flow5_up    = self.upsampled_flow5_to_4(flow5)
         out_deconv4 = self.deconv4(concat5)
         concat4 = torch.cat((out_conv4,out_deconv4,flow5_up),1)
-        print('concat4', concat4.size())
 
         flow4       = self.predict_flow4(concat4)
         flow4_up    = self.upsampled_flow4_to_3(flow4)
         out_deconv3 = self.deconv3(concat4)
-        print('x1', x1.size(), 'out_conv3a', out_conv3a.size(), 'out_conv_redir', out_conv_redir.size(), 'out_corr', out_corr.size(), 'in_conv3_1', in_conv3_1.size(), 'out_conv3_1', out_conv3_1.size(), sep = '\n')
         concat3 = torch.cat((out_conv3_1,out_deconv3,flow4_up),1)
 
         flow3       = self.predict_flow3(concat3)

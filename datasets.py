@@ -66,8 +66,8 @@ class MpiSintel(data.Dataset):
         self.frame_size = frame_utils.read_gen(self.image_list[0][0]).shape
 
         if (self.render_size[0] < 0) or (self.render_size[1] < 0) or (self.frame_size[0]%64) or (self.frame_size[1]%64):
-            self.render_size[0] = ( (self.frame_size[0])/64 ) * 64
-            self.render_size[1] = ( (self.frame_size[1])/64 ) * 64
+            self.render_size[0] = ( (self.frame_size[0])//64 ) * 64
+            self.render_size[1] = ( (self.frame_size[1])//64 ) * 64
 
         args.inference_size = self.render_size
 
