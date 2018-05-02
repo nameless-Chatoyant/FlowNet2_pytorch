@@ -545,6 +545,11 @@ class PWC_P(nn.Module):
 
     def __init__(self, args, batchNorm=False, div_flow = 20.):
         super(PWC_P, self).__init__()
+        self.batchNorm = batchNorm
+        self.div_flow = div_flow
+        self.rgb_max = args.rgb_max
+        self.args = args
+        
         self.feature_pyramid_extractor = FeaturePyramidExtractor(args, batchNorm=False)
 
     
