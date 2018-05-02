@@ -585,6 +585,7 @@ class PWC_P(nn.Module):
 
     
     def forward(self, inputs):
+        args = self.args
         rgb_mean = inputs.contiguous().view(inputs.size()[:2]+(-1,)).mean(dim=-1).view(inputs.size()[:2] + (1,1,1,))
         
         x = (inputs - rgb_mean) / self.rgb_max
