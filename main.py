@@ -156,10 +156,9 @@ if __name__ == '__main__':
             def __init__(self, args):
                 super(ModelAndLoss, self).__init__()
                 kwargs = tools.kwargs_from_args(args, 'model')
-                print(kwargs)
-                print(args)
-                quit()
                 self.model = args.model_class(args, **kwargs)
+                if args.inference:
+                    self.model.eval()
                 kwargs = tools.kwargs_from_args(args, 'loss')
                 self.loss = args.loss_class(args, **kwargs)
                 
