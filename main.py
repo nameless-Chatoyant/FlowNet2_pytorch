@@ -162,6 +162,8 @@ if __name__ == '__main__':
                 
             def forward(self, data, target, inference=False ):
                 output = self.model(data)
+                print(type(output))
+                print(len(output))
 
                 loss_values = self.loss(output, target)
 
