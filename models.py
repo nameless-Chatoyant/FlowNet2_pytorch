@@ -530,11 +530,11 @@ class FeaturePyramidExtractor(nn.Module):
 
     def forward(self, x):
         output1 = self.conv1(x)
-        output2 = self.conv2(x)
-        output3 = self.conv3(x)
-        output4 = self.conv4(x)
-        output5 = self.conv5(x)
-        output6 = self.conv6(x)
+        output2 = self.conv2(output1)
+        output3 = self.conv3(output2)
+        output4 = self.conv4(output3)
+        output5 = self.conv5(output4)
+        output6 = self.conv6(output5)
 
         return output1, output2, output3, output4, output5, output6
 
