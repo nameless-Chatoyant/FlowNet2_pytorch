@@ -158,6 +158,7 @@ if __name__ == '__main__':
                 kwargs = tools.kwargs_from_args(args, 'model')
                 print(kwargs)
                 print(args)
+                quit()
                 self.model = args.model_class(args, **kwargs)
                 kwargs = tools.kwargs_from_args(args, 'loss')
                 self.loss = args.loss_class(args, **kwargs)
