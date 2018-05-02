@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn import init
+import torch.nn.functional as F
 
 import math
 import numpy as np
@@ -538,6 +539,26 @@ class FeaturePyramidExtractor(nn.Module):
 
         return output1, output2, output3, output4, output5, output6
 
+
+class FlowEstimator(nn.Module):
+
+    def __init__(self, args, batchNorm=False, ch_in = 128):
+        super(FlowEstimator, self).__init__()
+        self.args = args
+
+        self.convs = nn.Sequential(
+            conv(batchNorm, ch_in, 128),
+            conv(batchNorm, 128, 128),
+            conv(batchNorm, 128, 96),
+            conv(batchNorm, 96, 64),
+            conv(batchNorm, 64, 32),
+            nn.Conv2d(in_channels = 32, out_channels = 2, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True)
+        )
+
+    def forward(self, x):
+        return self.convs(x)
+
+
 class PWC_P(nn.Module):
 
     def __init__(self, args, batchNorm=False, div_flow = 20.):
@@ -547,7 +568,19 @@ class PWC_P(nn.Module):
         self.rgb_max = args.rgb_max
         self.args = args
 
-        self.feature_pyramid_extractor = FeaturePyramidExtractor(args, batchNorm=False)
+        self.feature_pyramid_extractor = FeaturePyramidExtractor(args, batchNorm)
+        self.flow_estimator1 = FlowEstimator(args, batchNorm, ch_in = 16 + 81 + 2)
+        self.flow_estimator2 = FlowEstimator(args, batchNorm, ch_in = 32 + 81 + 2)
+        self.flow_estimator3 = FlowEstimator(args, batchNorm, ch_in = 64 + 81 + 2)
+        self.flow_estimator4 = FlowEstimator(args, batchNorm, ch_in = 96 + 81 + 2)
+        self.flow_estimator5 = FlowEstimator(args, batchNorm, ch_in = 128 + 81 + 2)
+        self.flow_estimator6 = FlowEstimator(args, batchNorm, ch_in = 192 + 81 + 2)
+        self.flow_estimators = [self.flow_estimator1, self.flow_estimator2, self.flow_estimator3, self.flow_estimator4, self.flow_estimator5, self.flow_estimator6]
+        self.flow_estimators.reverse()
+
+        self.corr = Correlation(pad_size=20, kernel_size=1, max_displacement=20, stride1=1, stride2=2, corr_multiply=1)
+        self.corr_activation = nn.LeakyReLU(0.1,inplace=True)
+
 
     
     def forward(self, inputs):
@@ -558,4 +591,23 @@ class PWC_P(nn.Module):
         x2 = x[:,:,1,:,:]
         x1_pyramid = self.feature_pyramid_extractor(x1)
         x2_pyramid = self.feature_pyramid_extractor(x2)
-        print(x1.size(), x2.size(), x1_pyramid.size(), x2_pyramid.size())
+
+        flow_out_pyramid = []
+        for l, (x1_, x2_) in enumerate(zip(x1_pyramid, x2_pyramid)):
+            flow = torch.zeros((x1_.size(0), 2, x1_.size(2), x1_.size(3))).to(args.device) if l == 0 else F.upsample(flow, scale_factor = 2, mode = 'bilinear')
+            
+            torchHorizontal = torch.linspace(-1.0, 1.0, x1_.size(3)).to(args.device).view(1, 1, 1, x1_.size(3)).expand(x1_.size(0), 1, x1_.size(2), x1_.size(3))
+            torchVertical = torch.linspace(-1.0, 1.0, x1_.size(2)).to(args.device).view(1, 1, x1_.size(2), 1).expand(x1_.size(0), 1, x1_.size(2), x1_.size(3))
+            grid = torch.cat([torchHorizontal, torchVertical], 1)
+
+            x2_warped = F.grid_sample(x2_, (grid + flow).permute(0, 2, 3, 1))
+            out_corr = self.corr(x1_, x2_warped)
+            out_corr = self.corr_activation(out_corr)
+
+            flow = self.flow_estimators[l](torch.cat([x1_, out_corr, flow], dim = 1))
+        
+
+        return flow
+
+
+            
