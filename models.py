@@ -538,9 +538,6 @@ class FeaturePyramidExtractor(nn.Module):
 
         return output1, output2, output3, output4, output5, output6
 
-
-
-
 class PWC_P(nn.Module):
 
     def __init__(self, args, batchNorm=False, div_flow = 20.):
@@ -559,8 +556,6 @@ class PWC_P(nn.Module):
         x = (inputs - rgb_mean) / self.rgb_max
         x1 = x[:,:,0,:,:]
         x2 = x[:,:,1,:,:]
-        print(x1.size(), x2.size())
-        quit()
         x1_pyramid = self.feature_pyramid_extractor(x1)
         x2_pyramid = self.feature_pyramid_extractor(x2)
         print(x1.size(), x2.size(), x1_pyramid.size(), x2_pyramid.size())
