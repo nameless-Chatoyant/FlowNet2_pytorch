@@ -600,7 +600,7 @@ class PWC_P(nn.Module):
             torchHorizontal = torch.linspace(-1.0, 1.0, x1_.size(3)).to(args.device).view(1, 1, 1, x1_.size(3)).expand(x1_.size(0), 1, x1_.size(2), x1_.size(3))
             torchVertical = torch.linspace(-1.0, 1.0, x1_.size(2)).to(args.device).view(1, 1, x1_.size(2), 1).expand(x1_.size(0), 1, x1_.size(2), x1_.size(3))
             grid = torch.cat([torchHorizontal, torchVertical], 1)
-            print(grid.size(), flow.size(), x1_.size(), x2_.size())
+            # print(grid.size(), flow.size(), x1_.size(), x2_.size())
             grid = (grid + flow).permute(0, 2, 3, 1)
             x2_warped = F.grid_sample(x2_, grid)
             out_corr = self.corr(x1_, x2_warped)
